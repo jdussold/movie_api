@@ -1,0 +1,52 @@
+* {
+  margin: 50px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-y: scroll;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+table {
+  border-collapse: collapse;
+  border: 2px solid #464c4f;
+  font-size: 0.69rem;
+}
+
+th {
+  background-color: #242728;
+  border-collapse: collapse;
+  box-sizing: border-box;
+  color: #abc7db;
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+td {
+  border-collapse: collapse;
+  border: 1px solid #242728;
+  box-sizing: border-box;
+  background-color: #abc7db;
+  color: #242728;
+  padding: 10px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+pre {
+  margin: 0;
+  width: 150px;
+  white-space: pre-line;
+}
