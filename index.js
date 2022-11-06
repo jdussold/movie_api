@@ -206,7 +206,7 @@ let movies = [
 
 // GET requests / READ endpoints
 
-//retuns a welcome message
+//returns a welcome message
 app.get("/", (req, res) => {
   res.send("Welcome to myFlix!");
 });
@@ -224,7 +224,7 @@ app.get("/movies/:title", (req, res) => {
   if (movie) {
     res.status(200).json(movie);
   } else {
-    res.status(400).send("no such movie");
+    res.status(404).send("no such movie");
   }
 });
 
@@ -236,7 +236,7 @@ app.get("/movies/genre/:genreName", (req, res) => {
   if (genre) {
     res.status(200).json(genre);
   } else {
-    res.status(400).send("no such genre");
+    res.status(404).send("no such genre");
   }
 });
 
@@ -250,7 +250,7 @@ app.get("/movies/directors/:directorName", (req, res) => {
   if (director) {
     res.status(200).json(director);
   } else {
-    res.status(400).send("no such director");
+    res.status(404).send("no such director");
   }
 });
 
@@ -270,7 +270,7 @@ app.post("/users", (req, res) => {
     users.push(newUser);
     res.status(201).json(newUser);
   } else {
-    res.status(400).send("users need names");
+    res.status(404).send("users need names");
   }
 });
 
@@ -284,7 +284,7 @@ app.post("/users/:id/:movieTitle", (req, res) => {
     user.favoriteMovies.push(movieTitle);
     res.status(200).send(`${movieTitle} has been added to user ${id}'s array`);
   } else {
-    res.status(400).send("no such user");
+    res.status(404).send("no such user");
   }
 });
 
@@ -304,7 +304,7 @@ app.delete("/users/:id/:movieTitle", (req, res) => {
       .status(200)
       .send(`${movieTitle} has been removed from user ${id}'s array`);
   } else {
-    res.status(400).send("no such user");
+    res.status(404).send("no such user");
   }
 });
 
@@ -318,7 +318,7 @@ app.delete("/users/:id", (req, res) => {
     users = users.filter((user) => user.id != id);
     res.status(200).send(`user ${id} has been deleted`);
   } else {
-    res.status(400).send("no such user");
+    res.status(404).send("no such user");
   }
 });
 
@@ -335,7 +335,7 @@ app.put("/users/:id", (req, res) => {
     user.name = updatedUser.name;
     res.status(200).json(user);
   } else {
-    res.status(400).send("no such user");
+    res.status(404).send("no such user");
   }
 });
 
