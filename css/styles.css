@@ -50,3 +50,7 @@ pre {
   width: 150px;
   white-space: pre-line;
 }
+
+.lower {
+  text-transform: lowercase;
+}
