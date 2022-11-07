@@ -189,9 +189,9 @@ let movies = [
     description:
       "On a journey to find the cure for a Tatarigami's curse, Ashitaka finds himself in the middle of a war between the forest gods and Tatara, a mining colony. In this quest he also meets San, the Mononoke Hime.",
     genre: {
-      name: "Adventure",
+      name: "Animation",
       description:
-        "Adventure is a type of fiction that usually presents danger, or gives the viewer a sense of excitement.",
+        "Animation is a method in which pictures are manipulated to appear as moving images. In traditional animation, images are drawn or painted by hand on transparent celluloid sheets to be photographed and exhibited on film.",
     },
     director: {
       name: "Hayao Miyazaki",
@@ -201,6 +201,24 @@ let movies = [
     },
     imageURL:
       "https://github.com/jdussold/movie_api/blob/main/img/Princess_Mononoke_Japanese_poster.png",
+  },
+  {
+    title: "Monty Python and the Holy Grail",
+    description:
+      "King Arthur and his Knights of the Round Table embark on a surreal, low-budget search for the Holy Grail, encountering many, very silly obstacles.",
+    Genre: {
+      name: "Comedy",
+      description:
+        "Comedy is a genre of film in which the main emphasis is on humor. These films are designed to make the audience laugh through amusement and most often work by exaggerating characteristics for humorous effect.",
+    },
+    director: {
+      name: "Terry Gilliam",
+      bio: "Terry Gilliam was born near Medicine Lake, Minnesota. When he was 12 his family moved to Los Angeles where he became a fan of MAD magazine. In his early twenties he was often stopped by the police who suspected him of being a drug addict and Gilliam had to explain that he worked in advertising. In the political turmoil in the 60's, Gilliam feared he would become a terrorist and decided to leave the USA. He moved to England and landed a job on the children's television show Do Not Adjust Your Set (1967) as an animator. There he met meet his future collaborators in Monty Python: Terry Jones, Eric Idle and Michael Palin. In 2006 he renounced his American citizenship.",
+      birthYear: "November 22, 1940",
+      deathYear: "",
+    },
+    imageURL:
+      "https://github.com/jdussold/movie_api/blob/main/img/Monty_Python_and_the_Holy_Grail.jpg",
   },
 ];
 
