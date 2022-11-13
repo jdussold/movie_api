@@ -41,7 +41,7 @@ let movies = [
       "https://github.com/jdussold/movie_api/blob/main/img/The_Lord_of_the_Rings_The_Fellowship_of_the_Ring_(2001).jpg",
   },
   {
-    title: "The Lord of the Rings: The Two Towers (2002)",
+    title: "The Lord of the Rings: The Two Towers",
     description:
       "While Frodo and Sam edge closer to Mordor with the help of the shifty Gollum, the divided fellowship makes a stand against Sauron's new ally, Saruman, and his hordes of Isengard.",
     genre: {
