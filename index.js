@@ -255,25 +255,25 @@ app.get("/movies", (req, res) => {
 
 //Get information about a single movie by title
 app.get("/movies/:title", (req, res) => {
-  Movies.findOne({ Title: req.params.Title })
+  Movies.findOne({ Title: req.params.title })
     .then((movie) => {
-      res.json(movie);
+      res.status(200).json(movie);
     })
     .catch((err) => {
       console.error(err);
-      res.status(404).send("no such movie");
+      res.status(500).send("Error: " + err);
     });
 });
 
 //Get information about a specific genre of film
-app.get("/genre/:Name", (req, res) => {
-  Genres.findOne({ Name: req.params.Name })
-    .then((genre) => {
-      res.json(genre.Description);
+app.get("/movies/genres/:name", (req, res) => {
+  Movies.findOne({ "Genre.Name": req.params.name })
+    .then((movie) => {
+      res.status(201).json(movie.genre.description);
     })
     .catch((err) => {
-      console.error(err);
-      self.status(404).send("no such genre");
+      console.log(err);
+      res.status(500).send("Error: " + err);
     });
 });
 
