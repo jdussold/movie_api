@@ -47,25 +47,46 @@
             <td>
               <code>GET</code>
             </td>
-            <td class="lower">URL</td>
+            <td class="lower">
+              <pre>
+                URL
+
+                Example:
+                /movies/Jurassic%20Park
+              </pre>
+            </td>
             <td>JSON</td>
           </tr>
           <tr>
             <td>Get descriptions of different genres</td>
-            <td class="lower">/genre/[Genre Name]</td>
+            <td class="lower">/movies/genres/[Genre Name]</td>
             <td>
               <code>GET</code>
             </td>
-            <td class="lower">URL</td>
+            <td class="lower">
+              <pre>
+                URL
+
+                Example:
+                /movies/genres/Action
+              </pre>
+            </td>
             <td>JSON</td>
           </tr>
           <tr>
             <td>Get information about a film director by name</td>
-            <td class="lower">director/[Director Name]</td>
+            <td class="lower">/movies/directors/[Director Name]</td>
             <td>
               <code>GET</code>
             </td>
-            <td class="lower">URL</td>
+            <td class="lower">
+              <pre>
+                URL
+
+                Example:
+                /movies/directors/Peter%20Jackson
+              </pre>
+            </td>
             <td>JSON</td>
           </tr>
           <tr>
@@ -83,7 +104,7 @@
                   "Username": "Mary",
                   "Password": "abc123",
                   "Email": "mary@email.com",
-                  "Birthday": "0000-00-00"
+                  "Birthday": "01/01/1981"
                 }
               </pre>
             </td>
@@ -91,7 +112,7 @@
           </tr>
           <tr>
             <td>Update username</td>
-            <td class="lower">/users/Username</td>
+            <td class="lower">/users/[Username]</td>
             <td>
               <code>PUT</code>
             </td>
@@ -104,7 +125,7 @@
                   "Username": "NewName",
                   "Password": "Upd@t3dP@ssw0rd",
                   "Email": "updated@email.com"
-                  "Birthday": "0000-00-00"
+                  "Birthday": "01/01/1981"
                 }
               </pre>
             </td>
@@ -112,7 +133,7 @@
           </tr>
           <tr>
             <td>Add movies to user favorites</td>
-            <td class="lower">/users/Username/movies/Movie</td>
+            <td class="lower">/users/Username/movies/[Movie_ID]</td>
             <td>
               <code>POST</code>
             </td>
@@ -121,14 +142,14 @@
                 URL
 
                 Example:
-                /users/mary/movies/Jurassic%Park
+                /users/mary/movies/Jurassic%20Park
               </pre>
             </td>
             <td>JSON</td>
           </tr>
           <tr>
             <td>Remove movies from user favorites</td>
-            <td class="lower">/users/Username/movies/Movie</td>
+            <td class="lower">/users/Username/movies/[Movie_ID]</td>
             <td>
               <code>DELETE</code>
             </td>
@@ -137,15 +158,15 @@
                 URL
 
                 Example:
-                /users/mary/movies/Jurassic%Park
+                /users/mary/movies/Jurassic%20Park
               </pre>
             </td>
 
-            <td>String</td>
+            <td>JSON</td>
           </tr>
           <tr>
             <td>Remove/delete users</td>
-            <td class="lower">/users/Username</td>
+            <td class="lower">/users/[Username]</td>
             <td>
               <code>DELETE</code>
             </td>
