@@ -245,7 +245,7 @@ app.get("/", (req, res) => {
 app.get("/movies", (req, res) => {
   Movies.find()
     .then((movies) => {
-      res.status(201).json(movies);
+      res.status(200).json(movies);
     })
     .catch((err) => {
       console.error(err);
@@ -269,7 +269,7 @@ app.get("/movies/:title", (req, res) => {
 app.get("/movies/genres/:name", (req, res) => {
   Movies.findOne({ "Genre.Name": req.params.name })
     .then((movie) => {
-      res.status(201).json(movie.genre.description);
+      res.status(200).json(movie.Genre.Description);
     })
     .catch((err) => {
       console.log(err);
@@ -278,14 +278,14 @@ app.get("/movies/genres/:name", (req, res) => {
 });
 
 //Get information about a specific director
-app.get("/director/Name", (req, res) => {
-  Directors.findOne({ Name: req.params.Name })
-    .then((director) => {
-      res.json(director);
+app.get("/movies/directors/:name", (req, res) => {
+  Movies.findOne({ "Director.Name": req.params.name })
+    .then((movie) => {
+      res.status(200).json(movie.Director);
     })
     .catch((err) => {
       console.error(err);
-      res.status(404).send("no such director");
+      res.status(500).send("Error: " + err);
     });
 });
 
@@ -309,7 +309,7 @@ app.get("/users/:Username", (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(404).send("no such user");
+      res.status(500).send("Error: " + err);
     });
 });
 
