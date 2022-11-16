@@ -254,38 +254,102 @@ app.get("/movies", (req, res) => {
 });
 
 //Get information about a single movie by title
+// app.get("/movies/:title", (req, res) => {
+//   Movies.findOne({ Title: req.params.title })
+//     .then((movie) => {
+//       res.status(200).json(movie);
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//       res.status(500).send("Error: " + err);
+//     });
+// });
+
 app.get("/movies/:title", (req, res) => {
-  Movies.findOne({ Title: req.params.title })
+  //res.send(`Got a GET request at /movies/title/${req.params.name}`);
+
+  const title = req.params.title;
+
+  // using Regular Expression (case insensitive and equal): ^the matrix$
+  // const query = { 'Title': new RegExp(`^${title}$`, 'i') };
+  const query = {
+    Title: { $regex: new RegExp(`^${title}$`), $options: "i" },
+  };
+
+  Movies.findOne(query)
     .then((movie) => {
-      res.status(200).json(movie);
+      res.json(movie);
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error: " + err);
+    .catch((error) => {
+      // error..
+      res.send(error.message);
     });
 });
 
 //Get information about a specific genre of film
+// app.get("/movies/genres/:name", (req, res) => {
+//   Movies.findOne({ "Genre.Name": req.params.name })
+//     .then((movie) => {
+//       res.status(200).json(movie.Genre.Description);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(500).send("Error: " + err);
+//     });
+// });
+
+//Get information about a specific genre of film
 app.get("/movies/genres/:name", (req, res) => {
-  Movies.findOne({ "Genre.Name": req.params.name })
+  //res.send(`Got a GET request at /movies/genres/${req.params.name}`);
+
+  const genreName = req.params.name;
+
+  // using Regular Expression (case insensitive and equal): ^action$
+  // const query = { 'Genre.Name': new RegExp(`^${genreName}$`, 'i') };
+  const query = {
+    "Genre.Name": { $regex: new RegExp(`^${genreName}$`), $options: "i" },
+  };
+
+  Movies.findOne(query)
     .then((movie) => {
-      res.status(200).json(movie.Genre.Description);
+      res.json(movie.Genre.Description);
     })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send("Error: " + err);
+    .catch((error) => {
+      // error..
+      res.send(error.message);
     });
 });
 
 //Get information about a specific director
+// app.get("/movies/directors/:name", (req, res) => {
+//   Movies.findOne({ "Director.Name": req.params.name })
+//     .then((movie) => {
+//       res.status(200).json(movie.Director.Bio);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(500).send("Error: " + err);
+//     });
+// });
+
 app.get("/movies/directors/:name", (req, res) => {
-  Movies.findOne({ "Director.Name": req.params.name })
+  //res.send(`Got a GET request at /movies/directors/${req.params.name}`);
+
+  const directorName = req.params.name;
+
+  // using Regular Expression (case insensitive and equal): ^peter jackson$
+  // const query = { 'Director.Name': new RegExp(`^${directorName}$`, 'i') };
+  const query = {
+    "Director.Name": { $regex: new RegExp(`^${directorName}$`), $options: "i" },
+  };
+
+  Movies.findOne(query)
     .then((movie) => {
-      res.status(200).json(movie.Director);
+      res.json(movie.Director.Bio);
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error: " + err);
+    .catch((error) => {
+      // error..
+      res.send(error.message);
     });
 });
 
@@ -302,14 +366,35 @@ app.get("/users", (req, res) => {
 });
 
 //Get a user by username
+// app.get("/users/:Username", (req, res) => {
+//   Users.findOne({ Username: req.params.Username })
+//     .then((user) => {
+//       res.json(user);
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//       res.status(500).send("Error: " + err);
+//     });
+// });
+
 app.get("/users/:Username", (req, res) => {
-  Users.findOne({ Username: req.params.Username })
+  //res.send(`Got a GET request at /users/Username/${req.params.name}`);
+
+  const userName = req.params.Username;
+
+  // using Regular Expression (case insensitive and equal): ^the matrix$
+  // const query = { 'Title': new RegExp(`^${title}$`, 'i') };
+  const query = {
+    Username: { $regex: new RegExp(`^${userName}$`), $options: "i" },
+  };
+
+  Users.findOne(query)
     .then((user) => {
       res.json(user);
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error: " + err);
+    .catch((error) => {
+      // error..
+      res.send(error.message);
     });
 });
 
