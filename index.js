@@ -4,12 +4,11 @@ const express = require("express"),
   uuid = require("uuid"),
   morgan = require("morgan"),
   mongoose = require("mongoose"),
-  Models = require("./models.js");
+  Models = require("./models.js"),
+  cors = require("cors");
 
 const Movies = Models.Movie;
 const Users = Models.User;
-const Genres = Models.Genre;
-const Directors = Models.Director;
 
 mongoose.connect("mongodb://127.0.0.1:27017/myFlixDB", {
   useNewUrlParser: true,
@@ -20,6 +19,25 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); //bodyParser middleware function
 app.use(morgan("common"));
 app.use(express.static("public"));
+
+//allow only certain origins to be given access
+let allowedOrigins = ["http://localhost:8080", "http://testsite.com"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        // If a specific origin isn’t found on the list of allowed origins
+        let message =
+          "The CORS policy for this application doesn’t allow access from origin " +
+          origin;
+        return callback(new Error(message), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
 
 let auth = require("./auth")(app);
 const passport = require("passport");
@@ -39,9 +57,10 @@ app.get(
       .then((movies) => {
         res.status(200).json(movies);
       })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send("Error: " + err);
+      //error..
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -65,10 +84,10 @@ app.get(
       .then((movie) => {
         res.json(movie);
       })
-      .catch((err) => {
+      .catch((error) => {
         // error..
-        console.error(err);
-        res.status(500).send("Error: " + err);
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -92,10 +111,10 @@ app.get(
       .then((movie) => {
         res.json(movie.Genre.Description);
       })
-      .catch((err) => {
+      .catch((error) => {
         // error..
-        console.error(err);
-        res.status(500).send("Error: " + err);
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -122,10 +141,10 @@ app.get(
       .then((movie) => {
         res.json(movie.Director.Bio);
       })
-      .catch((err) => {
+      .catch((error) => {
         // error..
-        console.error(err);
-        res.status(500).send("Error: " + err);
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -139,9 +158,10 @@ app.get(
       .then((users) => {
         res.status(200).json(users);
       })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send("Error: " + err);
+      //error..
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -165,10 +185,11 @@ app.get(
       .then((user) => {
         res.json(user);
       })
-      .catch((err) => {
+      //error..
+      .catch((error) => {
         // error..
-        console.error(err);
-        res.status(500).send("Error: " + err);
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -197,15 +218,17 @@ app.post("/users", (req, res) => {
           .then((user) => {
             res.status(201).json(user);
           })
-          .catch((err) => {
-            console.error(err);
-            res.status(500).send("Error: " + err);
+          //error..
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send("Error: " + error);
           });
       }
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error: " + err);
+    //error..
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error: " + error);
     });
 });
 
@@ -222,9 +245,10 @@ app.delete(
           res.status(200).send(req.params.Username + " was deleted.");
         }
       })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send("Error: " + err);
+      //error..
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
       });
   }
 );
@@ -255,10 +279,11 @@ app.put(
         },
       },
       { new: true }, // This line makes sure that the updated document is returned
-      (err, updatedUser) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error: " + err);
+      //error..
+      (error, updatedUser) => {
+        if (error) {
+          console.error(error);
+          res.status(500).send("Error: " + error);
         } else {
           res.json(updatedUser);
         }
@@ -278,10 +303,11 @@ app.post(
         $push: { FavoriteMovies: req.params.MovieID },
       },
       { new: true }, // This line makes sure that the updated document is returned
-      (err, updatedUser) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error: " + err);
+      //error..
+      (error, updatedUser) => {
+        if (error) {
+          console.error(error);
+          res.status(500).send("Error: " + error);
         } else {
           res.json(updatedUser);
         }
@@ -301,10 +327,11 @@ app.delete(
         $pull: { FavoriteMovies: req.params.MovieID },
       },
       { new: true }, // This line makes sure that the updated document is returned
-      (err, updatedUser) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send("Error: " + err);
+      //error..
+      (error, updatedUser) => {
+        if (error) {
+          console.error(error);
+          res.status(500).send("Error: " + error);
         } else {
           res.json(updatedUser);
         }
@@ -319,8 +346,8 @@ app.get("/documentation", (req, res) => {
 });
 
 // ERROR Handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
+app.use((error, req, res, next) => {
+  console.error(error.stack);
   res.status(500).send("Something broke!");
 });
 
