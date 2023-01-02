@@ -311,15 +311,13 @@ app.put(
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
-    // Hash the new password using the hashPassword function from the User model
-    const hashedPassword = User.hashPassword(req.body.Password);
+    req.body.Password = Users.hashPassword(req.body.Password);
     Users.findOneAndUpdate(
       { Username: req.params.Username },
       {
         $set: {
           Username: req.body.Username,
-          // Update the password with the hashed password
-          Password: hashedPassword,
+          Password: req.body.Password,
           Email: req.body.Email,
           Birthday: req.body.Birthday,
         },
