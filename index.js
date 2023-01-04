@@ -300,7 +300,6 @@ app.put(
       "Username",
       "Username contains non alphanumeric characters - not allowed."
     ).isAlphanumeric(),
-    check("Password", "Password is required").not().isEmpty(),
     check("Email", "Email does not appear to be valid").isEmail(),
   ],
   passport.authenticate("jwt", { session: false }),
@@ -311,7 +310,13 @@ app.put(
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
-    req.body.Password = Users.hashPassword(req.body.Password);
+
+    // Check if the password field was sent in the request body
+    if (req.body.Password) {
+      // If it was, rehash the password before saving
+      req.body.Password = Users.hashPassword(req.body.Password);
+    }
+
     Users.findOneAndUpdate(
       { Username: req.params.Username },
       {
@@ -335,6 +340,7 @@ app.put(
     );
   }
 );
+
 // Confirm Updates via password verification
 app.post("/verify-password", (req, res) => {
   // Find the user with the specified username
