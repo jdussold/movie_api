@@ -311,22 +311,22 @@ app.put(
       return res.status(422).json({ errors: errors.array() });
     }
 
+    // Create an object with the fields to update
+    let updateFields = {
+      Username: req.body.Username,
+      Email: req.body.Email,
+      Birthday: req.body.Birthday,
+    };
+
     // Check if the password field was sent in the request body
     if (req.body.Password) {
-      // If it was, rehash the password before saving
-      req.body.Password = Users.hashPassword(req.body.Password);
+      // If it was, rehash the password and add it to the updateFields object
+      updateFields.Password = Users.hashPassword(req.body.Password);
     }
 
     Users.findOneAndUpdate(
       { Username: req.params.Username },
-      {
-        $set: {
-          Username: req.body.Username,
-          Password: req.body.Password,
-          Email: req.body.Email,
-          Birthday: req.body.Birthday,
-        },
-      },
+      { $set: updateFields },
       { new: true }, // This line makes sure that the updated document is returned
       //error..
       (error, updatedUser) => {
