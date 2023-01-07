@@ -189,9 +189,66 @@ app.get(
       Username: { $regex: new RegExp(`^${userName}$`), $options: "i" },
     };
 
+    /**
+     * Problem:
+     * By passing the username in the url it means anyone who has a user name can fetch anyone data.
+     * This is a security problem.
+     * 
+     * Solution:
+     * passport.authenticate("jwt", { session: false }) is a middleware that ensure the user has a valid token to reach this route.
+     * How do we know the token is valid? 
+     * In movie_api/passport.js  JWTStrategy takes the token decodes it, validates it and searches the database to see if this user exists and if yes
+     * IT SAVES THE USER DATA IN req.user
+     * 
+     * Therefore you do not need to pass username in the url, you only need to reach this route with a valid token. What i am saying is this code should be:
+     * 
+     *  Users.findById(req.user._id)
+          .populate("FavoriteMovies") // https://mongoosejs.com/docs/populate.html
+          // Under the hood populate takes the ids in FavouriteMovies and checks movies to fetches the data and adds it to the response.
+          .then((user) => {
+              res.json(user);
+            })
+            //error..
+            .catch((error) => {
+              // error..
+              console.error(error);
+              res.status(500).send("Error: " + error);
+            });
+        }
+     * 
+     */
+
     Users.findOne(query)
-      .then((user) => {
+    .populate("FavoriteMovies") // https://mongoosejs.com/docs/populate.html
+    // Under the hood populate takes the ids in FavouriteMovies and checks movies to fetches the data and adds it to the response.
+    .then((user) => {
         res.json(user);
+         /**
+         * The code above will return:
+         * {
+         *    Username: "username",
+              Password: "password",
+              Email: "email@email.com",
+              Birthday: "2022/10/20",
+         *    FavoriteMovies: [
+         *      {
+         *           Title: "Forever young",
+                    Description:"Forever young",
+                    Genre: {
+                      Name: "Romance",
+                      Description: "Not sure",
+                    },
+                    Director: {
+                      Name: "David A",
+                      Bio: "Forever young",
+                    },
+                    Actors: ["Daniel A."],
+                    ImagePath: "https://imgurl.com",
+                    Featured: false,
+         *      }
+         *    ]
+         * }
+         */
       })
       //error..
       .catch((error) => {
@@ -200,6 +257,8 @@ app.get(
         res.status(500).send("Error: " + error);
       });
   }
+
+ 
 );
 
 //allow users to register / Create new user
@@ -265,6 +324,31 @@ app.delete(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
+    /**
+     * Problem:
+     * Anyone can delete anyones data.
+     * 
+     * Solution:
+     * Use only token data since we know the loggedin user data is stored in req.user
+     * 
+     *  Users.findOneAndRemove({ _id: req.user._id })
+          .then((user) => {
+            if (!user) {
+              res.status(400).send(req.user.Username + " was not found.");
+            } else {
+              res.status(200).send(req.user.Username + " was deleted.");
+            }
+          })
+          //error..
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send("Error: " + error);
+          });
+      }
+     * 
+     * 
+     * 
+     */
     Users.findOneAndRemove({ Username: req.params.Username })
       .then((user) => {
         if (!user) {
