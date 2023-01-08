@@ -427,8 +427,8 @@ app.put(
 
 // Confirm Updates via password verification
 app.post("/verify-password", (req, res) => {
-  // Find the user with the specified username
-  Users.findOne({ Username: req.body.username }, (err, user) => {
+  // Find the user with the specified id
+  Users.findById(req.user._id, (err, user) => {
     if (err) {
       console.error(err);
       return res.status(500).send("Error: " + err);
@@ -452,7 +452,7 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     Users.findOneAndUpdate(
-      { Username: req.params.Username },
+      { _id: req.user._id }, //With this, the url can be /movies/:MovieID/addFavorites and the loggedin user can only update their record.      
       {
         $push: { FavoriteMovies: req.params.MovieID },
       },
@@ -476,7 +476,7 @@ app.delete(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     Users.findOneAndUpdate(
-      { Username: req.params.Username },
+      { _id: req.user._id }, // Same as comment above
       {
         $pull: { FavoriteMovies: req.params.MovieID },
       },
