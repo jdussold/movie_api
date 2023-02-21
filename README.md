@@ -6,16 +6,16 @@ This API provides users with access to information about different movies, direc
 Table of Contents
 -----------------
 
--   [Requests and Responses](https://chat.openai.com/chat#requests-and-responses)
-    -   [Returns a list of ALL movies](https://chat.openai.com/chat#returns-a-list-of-all-movies)
-    -   [Get data about a single movie by title](https://chat.openai.com/chat#get-data-about-a-single-movie-by-title)
-    -   [Get descriptions of different genres](https://chat.openai.com/chat#get-descriptions-of-different-genres)
-    -   [Get information about a film director by name](https://chat.openai.com/chat#get-information-about-a-film-director-by-name)
-    -   [Register new users](https://chat.openai.com/chat#register-new-users)
-    -   [Update username](https://chat.openai.com/chat#update-username)
-    -   [Add movies to user favorites](https://chat.openai.com/chat#add-movies-to-user-favorites)
-    -   [Remove movies from user favorites](https://chat.openai.com/chat#remove-movies-from-user-favorites)
-    -   [Remove/delete users](https://chat.openai.com/chat#remove-delete-users)
+-   [Requests and Responses](#requests-and-responses)
+    -   [Returns a list of ALL movies](#returns-a-list-of-all-movies)
+    -   [Get data about a single movie by title](#get-data-about-a-single-movie-by-title)
+    -   [Get descriptions of different genres](#get-descriptions-of-different-genres)
+    -   [Get information about a film director by name](#get-information-about-a-film-director-by-name)
+    -   [Register new users](#register-new-users)
+    -   [Update username](#update-username)
+    -   [Add movies to user favorites](#add-movies-to-user-favorites)
+    -   [Remove movies from user favorites](#remove-movies-from-user-favorites)
+    -   [Remove/delete users](#remove-delete-users)
 
 Requests and Responses
 ----------------------
