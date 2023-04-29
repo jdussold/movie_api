@@ -30,7 +30,7 @@ app.use(express.static("public"));
 
 //allow only certain origins to be given access
 let allowedOrigins = [
-  "http://localhot:4200",
+  "http://localhost:4200",
   "http://localhost:8080",
   "http://testsite.com",
   "http://localhost:1234",
