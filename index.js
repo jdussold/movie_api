@@ -368,6 +368,23 @@ app.post("/verify-password", (req, res) => {
   });
 });
 
+// Get a user's favorite movies
+app.get(
+  "/users/:Username/favorites",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    Users.findOne({ Username: req.params.Username })
+      .populate("FavoriteMovies")
+      .then((user) => {
+        res.json(user.FavoriteMovies);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
+      });
+  }
+);
+
 // Add a movie to a user's list of favorites
 app.post(
   "/users/:Username/movies/:MovieID",
