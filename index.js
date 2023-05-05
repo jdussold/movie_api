@@ -363,7 +363,8 @@ app.post("/verify-password", (req, res) => {
     if (!isValid) {
       return res.status(401).send("Incorrect password");
     }
-    // If the password is correct, return a success message
+    // If the password is correct, set the Access-Control-Allow-Origin header and return a success message
+    res.set("Access-Control-Allow-Origin", "*");
     return res.status(200).send({ success: true });
   });
 });
