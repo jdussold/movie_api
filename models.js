@@ -14,8 +14,8 @@ let movieSchema = mongoose.Schema({
   },
   Actors: [String],
   ImagePath: String,
-  BackdropImage: String,
   Featured: Boolean,
+  BackdropImage: String,
 });
 
 let userSchema = mongoose.Schema({
