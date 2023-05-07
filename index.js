@@ -163,6 +163,17 @@ app.get(
   }
 );
 
+//Get featured movies
+app.get(
+  "/movies/featured",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    Movie.aggregate([{ $match: { Featured: true } }, { $sample: { size: 5 } }])
+      .then((movies) => res.status(200).send(movies))
+      .catch((error) => res.status(500).send(`Error: ${error}`));
+  }
+);
+
 //Get all users
 app.get(
   "/users",
