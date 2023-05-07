@@ -164,14 +164,14 @@ app.get(
 );
 
 //Get featured movies
-// Get featured movies
 app.get(
   "/movies/featured",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Movie.aggregate([{ $match: { Featured: true } }, { $sample: { size: 5 } }])
+    Movie.find({ Featured: true })
+      .limit(5)
       .then((movies) => {
-        console.log("Aggregation query results:", movies); // Add the logging statement here
+        console.log("Query results:", movies);
         res.status(200).send(movies);
       })
       .catch((error) => res.status(500).send(`Error: ${error}`));
