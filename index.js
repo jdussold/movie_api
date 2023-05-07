@@ -164,17 +164,19 @@ app.get(
 );
 
 //Get featured movies
+// Get a list of featured movies
 app.get(
   "/movies/featured",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Movie.find({ Featured: true })
-      .limit(5)
+    Movies.find({ Featured: true })
       .then((movies) => {
-        console.log("Query results:", movies);
-        res.status(200).send(movies);
+        res.status(200).json(movies);
       })
-      .catch((error) => res.status(500).send(`Error: ${error}`));
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
+      });
   }
 );
 
