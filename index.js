@@ -30,6 +30,7 @@ app.use(express.static("public"));
 
 //allow only certain origins to be given access
 let allowedOrigins = [
+  "https://jdussold.github.io/myFlix-Angular-client",
   "https://my-flix-angular-client-rho.vercel.app",
   "http://localhost:4200",
   "http://localhost:8080",
