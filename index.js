@@ -5,12 +5,181 @@ const express = require("express"),
   morgan = require("morgan"),
   mongoose = require("mongoose"),
   Models = require("./models.js"),
-  cors = require("cors");
+  cors = require("cors"),
+  swaggerJsdoc = require("swagger-jsdoc"),
+  swaggerUi = require("swagger-ui-express");
 
 const Movies = Models.Movie;
 const Users = Models.User;
 
 const { check, validationResult } = require("express-validator");
+
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Express API for MyFlix",
+      version: "1.0.0",
+      description: "A simple Express library API for MyFlix",
+    },
+    servers: [
+      {
+        url: "https://my-flix-db-jd.herokuapp.com",
+      },
+    ],
+    tags: [
+      { name: "Users", description: "Operations related to users" },
+      { name: "Movies", description: "Operations related to movies" },
+    ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+      schemas: {
+        Movie: {
+          type: "object",
+          required: ["title", "description"],
+          properties: {
+            title: {
+              type: "string",
+              description: "The movie's title.",
+            },
+            description: {
+              type: "string",
+              description: "The movie's description.",
+            },
+          },
+          example: {
+            title: "The Godfather",
+            description:
+              "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+          },
+        },
+        UserInput: {
+          type: "object",
+          required: ["Username", "Password", "Email", "Birthday"],
+          properties: {
+            Username: {
+              type: "string",
+              description: "The user's username.",
+            },
+            Password: {
+              type: "string",
+              description: "The user's password.",
+            },
+            Email: {
+              type: "string",
+              description: "The user's email.",
+            },
+            Birthday: {
+              type: "string",
+              format: "date",
+              description: "The user's birthday.",
+            },
+          },
+          example: {
+            Username: "johnDoe",
+            Password: "password123",
+            Email: "johndoe@example.com",
+            Birthday: "2000-01-01",
+          },
+        },
+        User: {
+          type: "object",
+          required: ["Username", "Email", "Birthday"],
+          properties: {
+            Username: {
+              type: "string",
+              description: "The user's username.",
+            },
+            Email: {
+              type: "string",
+              description: "The user's email.",
+            },
+            Birthday: {
+              type: "string",
+              format: "date",
+              description: "The user's birthday.",
+            },
+          },
+          example: {
+            Username: "johnDoe",
+            Email: "johndoe@example.com",
+            Birthday: "2000-01-01",
+          },
+        },
+        UserUpdate: {
+          type: "object",
+          properties: {
+            Username: {
+              type: "string",
+              description: "The updated username.",
+            },
+            Password: {
+              type: "string",
+              description: "The updated password (optional).",
+            },
+            Email: {
+              type: "string",
+              description: "The updated email.",
+            },
+            Birthday: {
+              type: "string",
+              format: "date",
+              description: "The updated birthday.",
+            },
+          },
+          example: {
+            Username: "johnDoe",
+            Email: "johndoe@example.com",
+            Birthday: "2000-01-01",
+          },
+        },
+        ValidationError: {
+          type: "object",
+          properties: {
+            errors: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/ValidationErrorItem",
+              },
+            },
+          },
+        },
+        ValidationErrorItem: {
+          type: "object",
+          properties: {
+            value: {
+              type: "string",
+              description: "The value that caused the validation error.",
+            },
+            msg: {
+              type: "string",
+              description: "The error message.",
+            },
+            param: {
+              type: "string",
+              description: "The parameter that caused the validation error.",
+            },
+          },
+        },
+      },
+    },
+    security: [
+      {
+        BearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./index.js", "./models.js", "./auth.js"],
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // mongoose.connect("mongodb://127.0.0.1:27017/myFlixDB", {
 //   useNewUrlParser: true,
@@ -63,7 +232,41 @@ app.get("/", (req, res) => {
   res.send("Welcome to MyFlix!");
 });
 
-//Get a full list of movies
+// Get all movies
+/**
+ * @swagger
+ * /movies:
+ *   get:
+ *     tags: [Movies]
+ *     summary: Retrieve a list of movies.
+ *     description: Retrieve a list of all movies in the MyFlix database.
+ *     responses:
+ *       200:
+ *         description: A list of movies.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Movie'
+ * components:
+ *   schemas:
+ *     Movie:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *       properties:
+ *         title:
+ *           type: string
+ *           description: The movie's title.
+ *         description:
+ *           type: string
+ *           description: The movie's description.
+ *       example:
+ *         title: The Godfather
+ *         description: The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.
+ */
 app.get(
   "/movies",
   passport.authenticate("jwt", { session: false }),
@@ -80,7 +283,29 @@ app.get(
   }
 );
 
-//Get information about a single movie by title
+// Get information about a specific movie by title
+/**
+ * @swagger
+ * /movies/{title}:
+ *   get:
+ *     tags: [Movies]
+ *     summary: Retrieve information about a single movie by title.
+ *     description: Retrieve information about a specific movie in the MyFlix database by its title.
+ *     parameters:
+ *       - in: path
+ *         name: title
+ *         required: true
+ *         description: The title of the movie.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Information about the movie.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Movie'
+ */
 app.get(
   "/movies/:title",
   passport.authenticate("jwt", { session: false }),
@@ -107,7 +332,34 @@ app.get(
   }
 );
 
-//Get information about a specific genre of film
+//Get information about a specific movie genre
+/**
+ * @swagger
+ * /movies/genres/{name}:
+ *   get:
+ *     tags: [Movies]
+ *     summary: Retrieve information about a specific genre of film.
+ *     description: Retrieve information about a specific genre of film in the MyFlix database.
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: The name of the genre.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The description of the genre.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 description:
+ *                   type: string
+ *             example:
+ *               description: "Action film is a film genre in which the protagonist is thrust into a series of events that typically involve violence and physical feats."
+ */
 app.get(
   "/movies/genres/:name",
   passport.authenticate("jwt", { session: false }),
@@ -134,7 +386,34 @@ app.get(
   }
 );
 
-//Get information about a specific director
+// Get information about a specific director
+/**
+ * @swagger
+ * /movies/directors/{name}:
+ *   get:
+ *     tags: [Movies]
+ *     summary: Retrieve information about a specific director.
+ *     description: Retrieve information about a specific director in the MyFlix database.
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: The name of the director.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The biography of the director.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 biography:
+ *                   type: string
+ *             example:
+ *               biography: "Peter Jackson, in full Sir Peter Robert Jackson, (born October 31, 1961, Pukerua Bay, North Island, New Zealand), New Zealand director, perhaps best known for his film adaptations of J.R.R. Tolkien's The Lord of the Rings and The Hobbit."
+ */
 app.get(
   "/movies/directors/:name",
   passport.authenticate("jwt", { session: false }),
@@ -165,6 +444,59 @@ app.get(
 );
 
 //Get all users
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     tags: [Users]
+ *     summary: Retrieve a list of all users.
+ *     description: Retrieve a list of all users in the MyFlix database.
+ *     responses:
+ *       200:
+ *         description: A list of users.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: The unique identifier of the user.
+ *         Name:
+ *           type: string
+ *           description: The name of the user.
+ *         Password:
+ *           type: string
+ *           description: The password of the user.
+ *         Email:
+ *           type: string
+ *           description: The email of the user.
+ *         Birthday:
+ *           type: string
+ *           format: date
+ *           description: The birthday of the user.
+ *         Favorites:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: The list of movie IDs that the user has added to favorites.
+ *       example:
+ *         - _id: "636efec4bc0d2c3596dbe357"
+ *           Name: "JohnDoe"
+ *           Password: "p@sswOrd!"
+ *           Email: "johndoe@fakeemail.com"
+ *           Birthday: "2001-09-12T00:00:00.000Z"
+ *           Favorites:
+ *             - "636efadabc0d2c3596dbe352"
+ *             - "636ef954bc0d2c3596dbe34f"
+ *             - "636ef9c7bc0d2c3596dbe350"
+ */
 app.get(
   "/users",
   passport.authenticate("jwt", { session: false }),
@@ -182,6 +514,28 @@ app.get(
 );
 
 //Get a user by username
+/**
+ * @swagger
+ * /users/{Username}:
+ *   get:
+ *     tags: [Users]
+ *     summary: Retrieve information about a user by username.
+ *     description: Retrieve information about a specific user in the MyFlix database by their username.
+ *     parameters:
+ *       - in: path
+ *         name: Username
+ *         required: true
+ *         description: The username of the user.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Information about the user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ */
 app.get(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
@@ -210,14 +564,27 @@ app.get(
 );
 
 //allow users to register / Create new user
-/* We’ll expect JSON in this format
-{
-  ID: Integer,
-  Username: String,
-  Password: String,
-  Email: String,
-  Birthday: Date
-}*/
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     tags: [Users]
+ *     summary: Create a new user.
+ *     description: Create a new user in the MyFlix database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserInput'
+ *     responses:
+ *       201:
+ *         description: The newly created user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ */
 app.post(
   "/users",
   [
@@ -268,6 +635,26 @@ app.post(
 );
 
 //allow users to deregister / Delete a user by username
+/**
+ * @swagger
+ * /users/{Username}:
+ *   delete:
+ *     tags: [Users]
+ *     summary: Delete a user by username.
+ *     description: Delete a user from the MyFlix database by their username.
+ *     parameters:
+ *       - in: path
+ *         name: Username
+ *         required: true
+ *         description: The username of the user to delete.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The user was deleted successfully.
+ *       400:
+ *         description: The specified user was not found.
+ */
 app.delete(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
@@ -289,16 +676,107 @@ app.delete(
 );
 
 //allow users to update their user information / Update a user's info, by username
-/* We’ll expect JSON in this format
-{
-  Username: String,
-  (required)
-  Password: String,
-  (required)
-  Email: String,
-  (required)
-  Birthday: Date
-}*/
+/**
+ * @swagger
+ * /users/{Username}:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update a user's information by username.
+ *     description: Update a user's information in the MyFlix database by their username.
+ *     parameters:
+ *       - in: path
+ *         name: Username
+ *         required: true
+ *         description: The username of the user.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserUpdate'
+ *     responses:
+ *       200:
+ *         description: The updated user's information.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       422:
+ *         description: Validation errors or missing fields in the request body.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UserUpdate:
+ *       type: object
+ *       properties:
+ *         Username:
+ *           type: string
+ *         Password:
+ *           oneOf:
+ *             - type: string
+ *             - type: null
+ *         Email:
+ *           type: string
+ *         Birthday:
+ *           type: string
+ *           format: date
+ *       required:
+ *         - Username
+ *         - Email
+ *         - Birthday
+ *       example:
+ *         Username: johnDoe
+ *         Password: optional
+ *         Email: johndoe@example.com
+ *         Birthday: 1990-01-01
+ *
+ *     User:
+ *       type: object
+ *       properties:
+ *         Username:
+ *           type: string
+ *         Email:
+ *           type: string
+ *         Birthday:
+ *           type: string
+ *           format: date
+ *       example:
+ *         Username: johnDoe
+ *         Email: johndoe@example.com
+ *         Birthday: 1990-01-01
+ *
+ *     ValidationError:
+ *       type: object
+ *       properties:
+ *         errors:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               value:
+ *                 type: string
+ *               msg:
+ *                 type: string
+ *               param:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *       example:
+ *         errors:
+ *           - value: johnDoe
+ *             msg: Username contains non alphanumeric characters - not allowed.
+ *             param: Username
+ *             location: body
+ */
 app.put(
   "/users/:Username",
   [
@@ -349,6 +827,66 @@ app.put(
 );
 
 // Confirm Updates via password verification
+/**
+ * @swagger
+ * /verify-password:
+ *   post:
+ *    tags: [Users]
+ *     summary: Confirm updates via password verification.
+ *     description: Confirm updates to a user's information by verifying the password.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PasswordVerification'
+ *     responses:
+ *       200:
+ *         description: Password verification successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Indicates if the password verification was successful.
+ *       401:
+ *         description: Incorrect password.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Incorrect password.
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: User not found.
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     PasswordVerification:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The username of the user.
+ *         password:
+ *           type: string
+ *           description: The password for verification.
+ *       required:
+ *         - username
+ *         - password
+ *       example:
+ *         username: johnDoe
+ *         password: p@ssw0rd
+ */
 app.post("/verify-password", (req, res) => {
   // Find the user with the specified username
   Users.findOne({ Username: req.body.username }, (err, user) => {
@@ -371,6 +909,44 @@ app.post("/verify-password", (req, res) => {
 });
 
 // Get a user's favorite movies
+/**
+ * @swagger
+ * /users/{Username}/favorites:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get a user's favorite movies.
+ *     description: Retrieve a list of favorite movies for a specific user in the MyFlix database.
+ *     parameters:
+ *       - in: path
+ *         name: Username
+ *         required: true
+ *         description: The username of the user.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of favorite movies.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Movie'
+ *       401:
+ *         description: Unauthorized. User authentication failed.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: User authentication failed.
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: User not found.
+ */
 app.get(
   "/users/:Username/favorites",
   passport.authenticate("jwt", { session: false }),
@@ -388,6 +964,54 @@ app.get(
 );
 
 // Add a movie to a user's list of favorites
+/**
+ * @swagger
+ * /users/{Username}/movies/{MovieID}:
+ *   post:
+ *     tags: [Users]
+ *     summary: Add a movie to a user's list of favorites.
+ *     description: Add a movie to the list of favorite movies for a specific user in the MyFlix database.
+ *     parameters:
+ *       - in: path
+ *         name: Username
+ *         required: true
+ *         description: The username of the user.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: MovieID
+ *         required: true
+ *         description: The ID of the movie to add to the user's favorites.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Updated user with the added movie.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *     components:
+ *       schemas:
+ *         User:
+ *           type: object
+ *           properties:
+ *             Username:
+ *               type: string
+ *               description: The user's username.
+ *             Email:
+ *               type: string
+ *               description: The user's email.
+ *             Birthday:
+ *               type: string
+ *               format: date
+ *               description: The user's birthday.
+ *             FavoriteMovies:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               description: The list of favorite movie IDs for the user.
+ */
 app.post(
   "/users/:Username/movies/:MovieID",
   passport.authenticate("jwt", { session: false }),
@@ -412,6 +1036,54 @@ app.post(
 );
 
 //Remove a movie from users favorites
+/**
+ * @swagger
+ * /users/{Username}/movies/{MovieID}:
+ *   delete:
+ *     tags: [Users]
+ *     summary: Remove a movie from a user's list of favorites.
+ *     description: Remove a movie from the list of favorite movies for a specific user in the MyFlix database.
+ *     parameters:
+ *       - in: path
+ *         name: Username
+ *         required: true
+ *         description: The username of the user.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: MovieID
+ *         required: true
+ *         description: The ID of the movie to remove from the user's favorites.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Updated user with the removed movie.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *     components:
+ *       schemas:
+ *         User:
+ *           type: object
+ *           properties:
+ *             Username:
+ *               type: string
+ *               description: The user's username.
+ *             Email:
+ *               type: string
+ *               description: The user's email.
+ *             Birthday:
+ *               type: string
+ *               format: date
+ *               description: The user's birthday.
+ *             FavoriteMovies:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               description: The list of favorite movie IDs for the user.
+ */
 app.delete(
   "/users/:Username/movies/:MovieID",
   passport.authenticate("jwt", { session: false }),
@@ -438,6 +1110,11 @@ app.delete(
 //Returns the API documentation
 app.get("/documentation", (req, res) => {
   res.sendFile("public/documentation.html", { root: __dirname });
+});
+
+// Redirect root URL to the Swagger UI documentation
+app.get("/", (req, res) => {
+  res.redirect("/api-docs");
 });
 
 // ERROR Handling
