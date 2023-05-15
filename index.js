@@ -1,61 +1,15 @@
-/**
- * Express module.
- * @const
- */
 const express = require("express"),
   app = express(),
-  /**
-   * Middleware module for parsing request bodies.
-   * @const
-   */
   bodyParser = require("body-parser"),
-  /**
-   * UUID module.
-   * @const
-   */
   uuid = require("uuid"),
-  /**
-   * Morgan module for logging HTTP requests.
-   * @const
-   */
   morgan = require("morgan"),
-  /**
-   * Mongoose module for MongoDB connection.
-   * @const
-   */
   mongoose = require("mongoose"),
-  /**
-   * Custom models.
-   * @const
-   */
   Models = require("./models.js"),
-  /**
-   * CORS module for handling cross-origin requests.
-   * @const
-   */
   cors = require("cors");
 
-/**
- * Movie model.
- * @typedef {Object} MovieModel
- * @property {string} Title - The title of the movie.
- * @property {string} Genre - The genre of the movie.
- * ...
- */
 const Movies = Models.Movie;
-
-/**
- * User model.
- * @typedef {Object} UserModel
- * @property {string} Username - The username of the user.
- * @property {string} Email - The email of the user.
- * ...
- */
 const Users = Models.User;
 
-/**
- * Express-validator module for request validation.
- */
 const { check, validationResult } = require("express-validator");
 
 // mongoose.connect("mongodb://127.0.0.1:27017/myFlixDB", {
@@ -63,10 +17,6 @@ const { check, validationResult } = require("express-validator");
 //   useUnifiedTopology: true,
 // });
 
-/**
- * Connection URI for MongoDB.
- * @type {string}
- */
 mongoose.connect(process.env.CONNECTION_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -78,10 +28,7 @@ app.use(morgan("common"));
 app.use(express.static("public"));
 //app.use(cors()); //allow requests from all origins
 
-/**
- * Allowed origins for CORS.
- * @type {string[]}
- */
+//allow only certain origins to be given access
 let allowedOrigins = [
   "https://jdussold.github.io/myFlix-Angular-client",
   "https://my-flix-angular-client-rho.vercel.app",
@@ -108,39 +55,16 @@ app.use(
   })
 );
 
-/**
- * Authentication module.
- */
 let auth = require("./auth")(app);
-
-/**
- * Passport module for user authentication.
- */
 const passport = require("passport");
 require("./passport");
 
-/**
- * Welcome route.
- * @name GET/
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//returns a welcome message
 app.get("/", (req, res) => {
   res.send("Welcome to MyFlix!");
 });
 
-/**
- * Get a full list of movies.
- * @name GET/movies
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Get a full list of movies
 app.get(
   "/movies",
   passport.authenticate("jwt", { session: false }),
@@ -157,15 +81,7 @@ app.get(
   }
 );
 
-/**
- * Get information about a single movie by title.
- * @name GET/movies/:title
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Get information about a single movie by title
 app.get(
   "/movies/:title",
   passport.authenticate("jwt", { session: false }),
@@ -192,15 +108,7 @@ app.get(
   }
 );
 
-/**
- * Get information about a specific genre of film.
- * @name GET/movies/genres/:name
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Get information about a specific genre of film
 app.get(
   "/movies/genres/:name",
   passport.authenticate("jwt", { session: false }),
@@ -227,15 +135,7 @@ app.get(
   }
 );
 
-/**
- * Get information about a specific director.
- * @name GET/movies/directors/:name
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Get information about a specific director
 app.get(
   "/movies/directors/:name",
   passport.authenticate("jwt", { session: false }),
@@ -265,15 +165,7 @@ app.get(
   }
 );
 
-/**
- * Get all users.
- * @name GET/users
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Get all users
 app.get(
   "/users",
   passport.authenticate("jwt", { session: false }),
@@ -290,15 +182,7 @@ app.get(
   }
 );
 
-/**
- * Get a user by username.
- * @name GET/users/:Username
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Get a user by username
 app.get(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
@@ -326,15 +210,15 @@ app.get(
   }
 );
 
-/**
- * Allow users to register / Create a new user.
- * @name POST/users
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//allow users to register / Create new user
+/* We’ll expect JSON in this format
+{
+  ID: Integer,
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
 app.post(
   "/users",
   [
@@ -384,15 +268,7 @@ app.post(
   }
 );
 
-/**
- * Allow users to deregister / Delete a user by username.
- * @name DELETE/users/:Username
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//allow users to deregister / Delete a user by username
 app.delete(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
@@ -413,15 +289,17 @@ app.delete(
   }
 );
 
-/**
- * Allow users to update their user information / Update a user's info, by username.
- * @name PUT/users/:Username
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//allow users to update their user information / Update a user's info, by username
+/* We’ll expect JSON in this format
+{
+  Username: String,
+  (required)
+  Password: String,
+  (required)
+  Email: String,
+  (required)
+  Birthday: Date
+}*/
 app.put(
   "/users/:Username",
   [
@@ -471,15 +349,7 @@ app.put(
   }
 );
 
-/**
- * Confirm updates via password verification.
- * @name POST/verify-password
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+// Confirm Updates via password verification
 app.post("/verify-password", (req, res) => {
   // Find the user with the specified username
   Users.findOne({ Username: req.body.username }, (err, user) => {
@@ -501,15 +371,7 @@ app.post("/verify-password", (req, res) => {
   });
 });
 
-/**
- * Get a user's favorite movies.
- * @name GET/users/:Username/favorites
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+// Get a user's favorite movies
 app.get(
   "/users/:Username/favorites",
   passport.authenticate("jwt", { session: false }),
@@ -526,15 +388,7 @@ app.get(
   }
 );
 
-/**
- * Add a movie to a user's list of favorites.
- * @name POST/users/:Username/movies/:MovieID
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * */
+// Add a movie to a user's list of favorites
 app.post(
   "/users/:Username/movies/:MovieID",
   passport.authenticate("jwt", { session: false }),
@@ -558,15 +412,7 @@ app.post(
   }
 );
 
-/**
- * Remove a movie from a user's favorites.
- * @name DELETE/users/:Username/movies/:MovieID
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Remove a movie from users favorites
 app.delete(
   "/users/:Username/movies/:MovieID",
   passport.authenticate("jwt", { session: false }),
@@ -590,40 +436,18 @@ app.delete(
   }
 );
 
-/**
- * Returns the API documentation.
- * @name GET/documentation
- * @function
- * @memberof module:routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- */
+//Returns the API documentation
 app.get("/documentation", (req, res) => {
   res.sendFile("public/documentation.html", { root: __dirname });
 });
 
-/**
- * Error handling middleware.
- * @function
- * @memberof module:routes
- * @inner
- * @param {Error} error - The error object.
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @param {function} next - The next middleware function.
- */
+// ERROR Handling
 app.use((error, req, res, next) => {
   console.error(error.stack);
   res.status(500).send("Something broke!");
 });
 
-/**
- * Listen for requests.
- * @constant
- * @type {number}
- * @default
- */
+// listen for requests
 const port = process.env.PORT || 8080;
 app.listen(port, "0.0.0.0", () => {
   console.log("Listening on Port " + port);
