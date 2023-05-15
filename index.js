@@ -83,7 +83,6 @@ app.use(express.static("public"));
  * @type {string[]}
  */
 let allowedOrigins = [
-  "https://jdussold.github.io/myFlix-Angular-client",
   "https://my-flix-angular-client-rho.vercel.app",
   "http://localhost:4200",
   "http://localhost:8080",
