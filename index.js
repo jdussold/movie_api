@@ -831,7 +831,7 @@ app.put(
  * @swagger
  * /verify-password:
  *   post:
- *    tags: [Users]
+ *     tags: [Users]
  *     summary: Confirm updates via password verification.
  *     description: Confirm updates to a user's information by verifying the password.
  *     requestBody:
@@ -866,7 +866,6 @@ app.put(
  *               type: string
  *               example: User not found.
  */
-
 /**
  * @swagger
  * components:
@@ -1107,21 +1106,19 @@ app.delete(
   }
 );
 
-//Returns the API documentation
-app.get("/documentation", (req, res) => {
-  res.sendFile("public/documentation.html", { root: __dirname });
-});
-
-// Redirect root URL to the Swagger UI documentation
-app.get("/", (req, res) => {
-  res.redirect("/api-docs");
-});
-
 // ERROR Handling
 app.use((error, req, res, next) => {
   console.error(error.stack);
   res.status(500).send("Something broke!");
 });
+
+//Returns the non-swagger API documentation
+app.get("/documentation", (req, res) => {
+  res.sendFile("public/documentation.html", { root: __dirname });
+});
+
+// Serve Swagger API documentation
+app.use("/api-docs", express.static("public"));
 
 // listen for requests
 const port = process.env.PORT || 8080;
