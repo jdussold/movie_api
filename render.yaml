@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: movie-api
+    runtime: node
+    plan: free
+    buildCommand: npm install --ignore-scripts && find node_modules -path '*/.claude' -type d -exec rm -rf {} +
+    startCommand: node index.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0
+      - key: CONNECTION_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: DEMO_MODE
+        value: "false"
+      - key: PUBLIC_BASE_URL
+        sync: false

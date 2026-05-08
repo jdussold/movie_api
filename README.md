@@ -41,6 +41,21 @@ Demo Mode
 
 Setting `DEMO_MODE=true` skips the MongoDB connection and serves a fixed set of mock movies from `demoData.js`. All authenticated write endpoints return `503 Demo mode: write operations disabled`. This lets the deployed app remain functional with no database.
 
+Deploy to Render
+----------------
+
+This repo includes a `render.yaml` blueprint.
+
+1.  Push to GitHub.
+2.  In Render: New → Blueprint → connect this repo. Render reads `render.yaml` and creates the web service.
+3.  In the service's Environment tab, set the values marked `sync: false`:
+
+    -   `CONNECTION_URI` — MongoDB Atlas SRV string
+    -   `JWT_SECRET` — random string, at least 32 chars
+    -   `PUBLIC_BASE_URL` — after first deploy, set to `https://<service-name>.onrender.com` so Swagger points at the live API
+
+4.  Trigger a deploy. The service idles after 15 min of inactivity; cold-start on the next request takes ~30–60s.
+
 Table of Contents
 -----------------
 
