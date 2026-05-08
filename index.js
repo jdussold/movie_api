@@ -27,7 +27,9 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "https://my-flix-db-jd.herokuapp.com",
+        url:
+          process.env.PUBLIC_BASE_URL ||
+          `http://localhost:${process.env.PORT || 8080}`,
       },
     ],
     tags: [

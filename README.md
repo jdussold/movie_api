@@ -3,6 +3,44 @@ API Documentation
 
 This API provides users with access to information about different movies, directors, and genres. Users are able to register and update their personal information as well as create and edit a list of their favorite movies.
 
+Stack: Node.js, Express, MongoDB (Mongoose), Passport (JWT + Local), Swagger.
+
+Local Development
+-----------------
+
+1.  Copy `.env.example` to `.env` and fill in values:
+
+    -   `CONNECTION_URI` — MongoDB connection string (e.g. an Atlas SRV URI)
+    -   `JWT_SECRET` — random string used to sign JWTs
+    -   `PORT` — defaults to `8080`
+    -   `DEMO_MODE` — set to `true` to run without a database, returning mock data on read endpoints and `503` on writes
+    -   `PUBLIC_BASE_URL` — optional, sets the deployed URL shown in the Swagger UI
+
+2.  Install dependencies:
+
+    ```
+    npm install --ignore-scripts
+    ```
+
+3.  Run the dev server with auto-reload:
+
+    ```
+    npm run dev
+    ```
+
+4.  Or run once:
+
+    ```
+    npm start
+    ```
+
+Swagger UI is served at `/api-docs`.
+
+Demo Mode
+---------
+
+Setting `DEMO_MODE=true` skips the MongoDB connection and serves a fixed set of mock movies from `demoData.js`. All authenticated write endpoints return `503 Demo mode: write operations disabled`. This lets the deployed app remain functional with no database.
+
 Table of Contents
 -----------------
 
