@@ -188,10 +188,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 //   useUnifiedTopology: true,
 // });
 
-mongoose.connect(process.env.CONNECTION_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.CONNECTION_URI);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); //bodyParser middleware function
@@ -661,7 +658,7 @@ app.delete(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Users.findOneAndRemove({ Username: req.params.Username })
+    Users.findOneAndDelete({ Username: req.params.Username })
       .then((user) => {
         if (!user) {
           res.status(400).send(req.params.Username + " was not found.");
@@ -814,17 +811,15 @@ app.put(
     Users.findOneAndUpdate(
       { Username: req.params.Username },
       { $set: updateFields },
-      { new: true }, // This line makes sure that the updated document is returned
-      //error..
-      (error, updatedUser) => {
-        if (error) {
-          console.error(error);
-          res.status(500).send("Error: " + error);
-        } else {
-          res.json(updatedUser);
-        }
-      }
-    );
+      { new: true }
+    )
+      .then((updatedUser) => {
+        res.json(updatedUser);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
+      });
   }
 );
 
@@ -889,24 +884,22 @@ app.put(
  *         password: p@ssw0rd
  */
 app.post("/verify-password", (req, res) => {
-  // Find the user with the specified username
-  Users.findOne({ Username: req.body.username }, (err, user) => {
-    if (err) {
+  Users.findOne({ Username: req.body.username })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+      let isValid = user.validatePassword(req.body.password);
+      if (!isValid) {
+        return res.status(401).send("Incorrect password");
+      }
+      res.set("Access-Control-Allow-Origin", "*");
+      return res.status(200).send({ success: true });
+    })
+    .catch((err) => {
       console.error(err);
       return res.status(500).send("Error: " + err);
-    }
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
-    // Use the validatePassword method to check if the entered password is correct
-    let isValid = user.validatePassword(req.body.password);
-    if (!isValid) {
-      return res.status(401).send("Incorrect password");
-    }
-    // If the password is correct, set the Access-Control-Allow-Origin header and return a success message
-    res.set("Access-Control-Allow-Origin", "*");
-    return res.status(200).send({ success: true });
-  });
+    });
 });
 
 // Get a user's favorite movies
@@ -1022,17 +1015,15 @@ app.post(
       {
         $push: { FavoriteMovies: req.params.MovieID },
       },
-      { new: true }, // This line makes sure that the updated document is returned
-      //error..
-      (error, updatedUser) => {
-        if (error) {
-          console.error(error);
-          res.status(500).send("Error: " + error);
-        } else {
-          res.json(updatedUser);
-        }
-      }
-    );
+      { new: true }
+    )
+      .then((updatedUser) => {
+        res.json(updatedUser);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
+      });
   }
 );
 
@@ -1094,17 +1085,15 @@ app.delete(
       {
         $pull: { FavoriteMovies: req.params.MovieID },
       },
-      { new: true }, // This line makes sure that the updated document is returned
-      //error..
-      (error, updatedUser) => {
-        if (error) {
-          console.error(error);
-          res.status(500).send("Error: " + error);
-        } else {
-          res.json(updatedUser);
-        }
-      }
-    );
+      { new: true }
+    )
+      .then((updatedUser) => {
+        res.json(updatedUser);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
+      });
   }
 );
 
