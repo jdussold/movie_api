@@ -2,8 +2,6 @@ require("dotenv").config();
 
 const express = require("express"),
   app = express(),
-  bodyParser = require("body-parser"),
-  uuid = require("uuid"),
   morgan = require("morgan"),
   mongoose = require("mongoose"),
   Models = require("./models.js"),
@@ -190,8 +188,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 mongoose.connect(process.env.CONNECTION_URI);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); //bodyParser middleware function
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("common"));
 app.use(express.static("public"));
 //app.use(cors()); //allow requests from all origins
