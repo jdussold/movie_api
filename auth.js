@@ -1,4 +1,4 @@
-const jwtSecret = "your_jwt_secret"; // This has to be the same key used in the JWTStrategy
+const jwtSecret = process.env.JWT_SECRET;
 
 const jwt = require("jsonwebtoken"),
   passport = require("passport");
@@ -14,8 +14,15 @@ let generateJWTToken = (user) => {
 };
 
 /* POST login. */
+const DEMO_MODE = process.env.DEMO_MODE === "true";
+
 module.exports = (router) => {
   router.post("/login", (req, res) => {
+    if (DEMO_MODE) {
+      return res
+        .status(503)
+        .json({ message: "Demo mode: write operations disabled" });
+    }
     passport.authenticate("local", { session: false }, (error, user, info) => {
       if (error || !user) {
         return res.status(400).json({
