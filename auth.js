@@ -14,8 +14,15 @@ let generateJWTToken = (user) => {
 };
 
 /* POST login. */
+const DEMO_MODE = process.env.DEMO_MODE === "true";
+
 module.exports = (router) => {
   router.post("/login", (req, res) => {
+    if (DEMO_MODE) {
+      return res
+        .status(503)
+        .json({ message: "Demo mode: write operations disabled" });
+    }
     passport.authenticate("local", { session: false }, (error, user, info) => {
       if (error || !user) {
         return res.status(400).json({

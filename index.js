@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+const DEMO_MODE = process.env.DEMO_MODE === "true";
+const demoData = require("./demoData");
+
 const express = require("express"),
   app = express(),
   morgan = require("morgan"),
@@ -186,7 +189,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 //   useUnifiedTopology: true,
 // });
 
-mongoose.connect(process.env.CONNECTION_URI);
+if (!DEMO_MODE) {
+  mongoose.connect(process.env.CONNECTION_URI);
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -223,6 +228,16 @@ app.use(
 let auth = require("./auth")(app);
 const passport = require("passport");
 require("./passport");
+
+const requireAuth = DEMO_MODE
+  ? (req, res, next) => next()
+  : passport.authenticate("jwt", { session: false });
+const demoBlock = (req, res, next) =>
+  DEMO_MODE
+    ? res
+        .status(503)
+        .json({ message: "Demo mode: write operations disabled" })
+    : next();
 
 //returns a welcome message
 app.get("/", (req, res) => {
@@ -266,8 +281,9 @@ app.get("/", (req, res) => {
  */
 app.get(
   "/movies",
-  passport.authenticate("jwt", { session: false }),
+  requireAuth,
   (req, res) => {
+    if (DEMO_MODE) return res.json(demoData.movies);
     Movies.find()
       .then((movies) => {
         res.status(200).json(movies);
@@ -305,8 +321,14 @@ app.get(
  */
 app.get(
   "/movies/:title",
-  passport.authenticate("jwt", { session: false }),
+  requireAuth,
   (req, res) => {
+    if (DEMO_MODE) {
+      const movie = demoData.movies.find(
+        (m) => m.Title.toLowerCase() === req.params.title.toLowerCase()
+      );
+      return res.json(movie || null);
+    }
     //res.send(`Got a GET request at /movies/title/${req.params.name}`);
 
     const title = req.params.title;
@@ -359,8 +381,14 @@ app.get(
  */
 app.get(
   "/movies/genres/:name",
-  passport.authenticate("jwt", { session: false }),
+  requireAuth,
   (req, res) => {
+    if (DEMO_MODE) {
+      const match = demoData.movies.find(
+        (m) => m.Genre.Name.toLowerCase() === req.params.name.toLowerCase()
+      );
+      return res.json(match ? match.Genre.Description : null);
+    }
     //res.send(`Got a GET request at /movies/genres/${req.params.name}`);
 
     const genreName = req.params.name;
@@ -413,8 +441,14 @@ app.get(
  */
 app.get(
   "/movies/directors/:name",
-  passport.authenticate("jwt", { session: false }),
+  requireAuth,
   (req, res) => {
+    if (DEMO_MODE) {
+      const match = demoData.movies.find(
+        (m) => m.Director.Name.toLowerCase() === req.params.name.toLowerCase()
+      );
+      return res.json(match ? match.Director.Bio : null);
+    }
     //res.send(`Got a GET request at /movies/directors/${req.params.name}`);
 
     const directorName = req.params.name;
@@ -496,7 +530,8 @@ app.get(
  */
 app.get(
   "/users",
-  passport.authenticate("jwt", { session: false }),
+  demoBlock,
+  requireAuth,
   (req, res) => {
     Users.find()
       .then((users) => {
@@ -535,7 +570,8 @@ app.get(
  */
 app.get(
   "/users/:Username",
-  passport.authenticate("jwt", { session: false }),
+  demoBlock,
+  requireAuth,
   (req, res) => {
     //res.send(`Got a GET request at /users/Username/${req.params.name}`);
 
@@ -584,6 +620,7 @@ app.get(
  */
 app.post(
   "/users",
+  demoBlock,
   [
     check("Username", "Username is required").isLength({ min: 5 }),
     check(
@@ -654,7 +691,8 @@ app.post(
  */
 app.delete(
   "/users/:Username",
-  passport.authenticate("jwt", { session: false }),
+  demoBlock,
+  requireAuth,
   (req, res) => {
     Users.findOneAndDelete({ Username: req.params.Username })
       .then((user) => {
@@ -776,6 +814,7 @@ app.delete(
  */
 app.put(
   "/users/:Username",
+  demoBlock,
   [
     check("Username", "Username is required").isLength({ min: 5 }),
     check(
@@ -784,7 +823,7 @@ app.put(
     ).isAlphanumeric(),
     check("Email", "Email does not appear to be valid").isEmail(),
   ],
-  passport.authenticate("jwt", { session: false }),
+  requireAuth,
   (req, res) => {
     // check the validation object for errors
     let errors = validationResult(req);
@@ -881,7 +920,7 @@ app.put(
  *         username: johnDoe
  *         password: p@ssw0rd
  */
-app.post("/verify-password", (req, res) => {
+app.post("/verify-password", demoBlock, (req, res) => {
   Users.findOne({ Username: req.body.username })
     .then((user) => {
       if (!user) {
@@ -941,7 +980,8 @@ app.post("/verify-password", (req, res) => {
  */
 app.get(
   "/users/:Username/favorites",
-  passport.authenticate("jwt", { session: false }),
+  demoBlock,
+  requireAuth,
   (req, res) => {
     Users.findOne({ Username: req.params.Username })
       .populate("FavoriteMovies")
@@ -1006,7 +1046,8 @@ app.get(
  */
 app.post(
   "/users/:Username/movies/:MovieID",
-  passport.authenticate("jwt", { session: false }),
+  demoBlock,
+  requireAuth,
   (req, res) => {
     Users.findOneAndUpdate(
       { Username: req.params.Username },
@@ -1076,7 +1117,8 @@ app.post(
  */
 app.delete(
   "/users/:Username/movies/:MovieID",
-  passport.authenticate("jwt", { session: false }),
+  demoBlock,
+  requireAuth,
   (req, res) => {
     Users.findOneAndUpdate(
       { Username: req.params.Username },
