@@ -211,18 +211,22 @@ let allowedOrigins = [
   "https://myflix-jd.netlify.app",
 ];
 
+let allowedOriginPatterns = [
+  /^https:\/\/deploy-preview-\d+--myflix-jd\.netlify\.app$/,
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        // If a specific origin isn’t found on the list of allowed origins
-        let message =
-          "The CORS policy for this application doesn’t allow access from origin " +
-          origin;
-        return callback(new Error(message), false);
+      if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+      if (allowedOriginPatterns.some((pattern) => pattern.test(origin))) {
+        return callback(null, true);
       }
-      return callback(null, true);
+      let message =
+        "The CORS policy for this application doesn’t allow access from origin " +
+        origin;
+      return callback(new Error(message), false);
     },
   })
 );
