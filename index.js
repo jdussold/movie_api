@@ -213,6 +213,7 @@ let allowedOrigins = [
 
 let allowedOriginPatterns = [
   /^https:\/\/deploy-preview-\d+--myflix-jd\.netlify\.app$/,
+  /^https:\/\/my-flix-angular-client-.+\.vercel\.app$/,
 ];
 
 app.use(
