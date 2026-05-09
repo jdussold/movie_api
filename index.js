@@ -647,8 +647,19 @@ app.post(
     Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
       .then((user) => {
         if (user) {
-          //If the user is found, send a response that it already exists
-          return res.status(400).send(req.body.Username + " already exists");
+          // Match the express-validator error shape so clients can parse
+          // duplicate-username and validation errors uniformly.
+          return res.status(409).json({
+            errors: [
+              {
+                type: "field",
+                value: req.body.Username,
+                msg: "Username already taken",
+                path: "Username",
+                location: "body",
+              },
+            ],
+          });
         } else {
           Users.create({
             Username: req.body.Username,
@@ -865,85 +876,6 @@ app.put(
       });
   }
 );
-
-// Confirm Updates via password verification
-/**
- * @swagger
- * /verify-password:
- *   post:
- *     tags: [Users]
- *     summary: Confirm updates via password verification.
- *     description: Confirm updates to a user's information by verifying the password.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/PasswordVerification'
- *     responses:
- *       200:
- *         description: Password verification successful.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   description: Indicates if the password verification was successful.
- *       401:
- *         description: Incorrect password.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: Incorrect password.
- *       404:
- *         description: User not found.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: User not found.
- */
-/**
- * @swagger
- * components:
- *   schemas:
- *     PasswordVerification:
- *       type: object
- *       properties:
- *         username:
- *           type: string
- *           description: The username of the user.
- *         password:
- *           type: string
- *           description: The password for verification.
- *       required:
- *         - username
- *         - password
- *       example:
- *         username: johnDoe
- *         password: p@ssw0rd
- */
-app.post("/verify-password", demoBlock, (req, res) => {
-  Users.findOne({ Username: req.body.username })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send("User not found");
-      }
-      let isValid = user.validatePassword(req.body.password);
-      if (!isValid) {
-        return res.status(401).send("Incorrect password");
-      }
-      res.set("Access-Control-Allow-Origin", "*");
-      return res.status(200).send({ success: true });
-    })
-    .catch((err) => {
-      console.error(err);
-      return res.status(500).send("Error: " + err);
-    });
-});
 
 // Get a user's favorite movies
 /**
