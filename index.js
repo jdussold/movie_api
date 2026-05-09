@@ -647,8 +647,19 @@ app.post(
     Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
       .then((user) => {
         if (user) {
-          //If the user is found, send a response that it already exists
-          return res.status(400).send(req.body.Username + " already exists");
+          // Match the express-validator error shape so clients can parse
+          // duplicate-username and validation errors uniformly.
+          return res.status(409).json({
+            errors: [
+              {
+                type: "field",
+                value: req.body.Username,
+                msg: "Username already taken",
+                path: "Username",
+                location: "body",
+              },
+            ],
+          });
         } else {
           Users.create({
             Username: req.body.Username,
