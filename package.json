@@ -32,13 +32,15 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "swagger-jsdoc": "^6.2.8",
+    "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
   },
   "overrides": {
-    "minimatch": ">=3.1.6"
+    "minimatch": ">=3.1.6",
+    "brace-expansion": ">=5.0.9",
+    "qs": ">=6.16.0"
   }
 }
