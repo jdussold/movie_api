@@ -192,7 +192,18 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // });
 
 if (!DEMO_MODE) {
-  mongoose.connect(process.env.CONNECTION_URI);
+  // Don't let a database outage take the whole API down. Atlas pauses free
+  // clusters after prolonged inactivity, and an unhandled rejection here
+  // would crash the process and fail the deploy.
+  mongoose.connect(process.env.CONNECTION_URI).catch((err) => {
+    console.error("MongoDB connection failed:", err.message);
+    console.error("API is up; database-backed routes will fail until it connects.");
+  });
+
+  // Errors emitted after the initial connect would also be unhandled.
+  mongoose.connection.on("error", (err) => {
+    console.error("MongoDB error:", err.message);
+  });
 }
 
 app.use(express.json());
