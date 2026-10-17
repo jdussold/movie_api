@@ -3,7 +3,7 @@ services:
     name: movie-api
     runtime: node
     plan: free
-    buildCommand: npm ci --omit=dev --ignore-scripts && find node_modules -path '*/.claude' -type d -exec rm -rf {} +
+    buildCommand: npm install --ignore-scripts && find node_modules -path '*/.claude' -type d -exec rm -rf {} +
     startCommand: node index.js
     healthCheckPath: /
     envVars:
