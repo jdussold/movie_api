@@ -18,13 +18,24 @@ let movieSchema = mongoose.Schema({
   BackdropImage: String,
 });
 
-let userSchema = mongoose.Schema({
-  Username: { type: String, required: true },
-  Password: { type: String, required: true },
-  Email: { type: String, required: true },
-  Birthday: Date,
-  FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
-});
+let userSchema = mongoose.Schema(
+  {
+    Username: { type: String, required: true },
+    Password: { type: String, required: true },
+    Email: { type: String, required: true },
+    Birthday: Date,
+    FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
+  },
+  {
+    // never send the password hash to clients
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.Password;
+        return ret;
+      },
+    },
+  }
+);
 
 //hash user passwords
 userSchema.statics.hashPassword = (password) => {
