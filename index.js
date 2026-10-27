@@ -256,6 +256,11 @@ const demoBlock = (req, res, next) =>
         .status(503)
         .json({ message: "Demo mode: write operations disabled" })
     : next();
+// Users may only read or change their own account
+const requireSelf = (req, res, next) =>
+  req.user.Username === req.params.Username
+    ? next()
+    : res.status(403).json({ message: "Forbidden" });
 
 //returns a welcome message
 app.get("/", (req, res) => {
@@ -492,23 +497,8 @@ app.get(
   }
 );
 
-//Get all users
 /**
  * @swagger
- * /users:
- *   get:
- *     tags: [Users]
- *     summary: Retrieve a list of all users.
- *     description: Retrieve a list of all users in the MyFlix database.
- *     responses:
- *       200:
- *         description: A list of users.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
  * components:
  *   schemas:
  *     User:
@@ -520,9 +510,6 @@ app.get(
  *         Name:
  *           type: string
  *           description: The name of the user.
- *         Password:
- *           type: string
- *           description: The password of the user.
  *         Email:
  *           type: string
  *           description: The email of the user.
@@ -538,7 +525,6 @@ app.get(
  *       example:
  *         - _id: "636efec4bc0d2c3596dbe357"
  *           Name: "JohnDoe"
- *           Password: "p@sswOrd!"
  *           Email: "johndoe@fakeemail.com"
  *           Birthday: "2001-09-12T00:00:00.000Z"
  *           Favorites:
@@ -546,23 +532,6 @@ app.get(
  *             - "636ef954bc0d2c3596dbe34f"
  *             - "636ef9c7bc0d2c3596dbe350"
  */
-app.get(
-  "/users",
-  demoBlock,
-  requireAuth,
-  (req, res) => {
-    Users.find()
-      .then((users) => {
-        res.status(200).json(users);
-      })
-      //error..
-      .catch((error) => {
-        console.error(error);
-        res.status(500).send("Error: " + error);
-      });
-  }
-);
-
 //Get a user by username
 /**
  * @swagger
@@ -590,18 +559,9 @@ app.get(
   "/users/:Username",
   demoBlock,
   requireAuth,
+  requireSelf,
   (req, res) => {
-    //res.send(`Got a GET request at /users/Username/${req.params.name}`);
-
-    const userName = req.params.Username;
-
-    // using Regular Expression (case insensitive and equal): ^the matrix$
-    // const query = { 'Title': new RegExp(`^${title}$`, 'i') };
-    const query = {
-      Username: { $regex: new RegExp(`^${userName}$`), $options: "i" },
-    };
-
-    Users.findOne(query)
+    Users.findOne({ Username: req.params.Username })
       .then((user) => {
         res.json(user);
       })
@@ -722,6 +682,7 @@ app.delete(
   "/users/:Username",
   demoBlock,
   requireAuth,
+  requireSelf,
   (req, res) => {
     Users.findOneAndDelete({ Username: req.params.Username })
       .then((user) => {
@@ -853,6 +814,7 @@ app.put(
     check("Email", "Email does not appear to be valid").isEmail(),
   ],
   requireAuth,
+  requireSelf,
   (req, res) => {
     // check the validation object for errors
     let errors = validationResult(req);
@@ -874,13 +836,34 @@ app.put(
       updateFields.Password = Users.hashPassword(req.body.Password);
     }
 
-    Users.findOneAndUpdate(
-      { Username: req.params.Username },
-      { $set: updateFields },
-      { new: true }
-    )
-      .then((updatedUser) => {
-        res.json(updatedUser);
+    // Renaming to a taken username would create two accounts with one name
+    const nameTaken =
+      req.body.Username !== req.params.Username
+        ? Users.exists({ Username: req.body.Username })
+        : Promise.resolve(null);
+
+    nameTaken
+      .then((taken) => {
+        if (taken) {
+          return res.status(409).json({
+            errors: [
+              {
+                type: "field",
+                value: req.body.Username,
+                msg: "Username already taken",
+                path: "Username",
+                location: "body",
+              },
+            ],
+          });
+        }
+        return Users.findOneAndUpdate(
+          { Username: req.params.Username },
+          { $set: updateFields },
+          { new: true }
+        ).then((updatedUser) => {
+          res.json(updatedUser);
+        });
       })
       .catch((error) => {
         console.error(error);
@@ -932,6 +915,7 @@ app.get(
   "/users/:Username/favorites",
   demoBlock,
   requireAuth,
+  requireSelf,
   (req, res) => {
     Users.findOne({ Username: req.params.Username })
       .populate("FavoriteMovies")
@@ -998,6 +982,7 @@ app.post(
   "/users/:Username/movies/:MovieID",
   demoBlock,
   requireAuth,
+  requireSelf,
   (req, res) => {
     Users.findOneAndUpdate(
       { Username: req.params.Username },
@@ -1069,6 +1054,7 @@ app.delete(
   "/users/:Username/movies/:MovieID",
   demoBlock,
   requireAuth,
+  requireSelf,
   (req, res) => {
     Users.findOneAndUpdate(
       { Username: req.params.Username },
